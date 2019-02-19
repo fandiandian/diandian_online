@@ -44,7 +44,11 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'courses.apps.CoursesConfig',
     'organizations.apps.OrganizationsConfig',
-    'operations.apps.OperationsConfig'
+    'operations.apps.OperationsConfig',
+    # 将 xadmin 和 crispy_forms （django-crispy-forms）添加到 INSTALLED_APPS 中
+    # 需要将 django-crispy-forms 改成 crispy_forms
+    'xadmin',
+    'crispy_forms',
 ]
 AUTH_USER_MODEL = 'users.UserProfiles'
 
