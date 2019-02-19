@@ -35,8 +35,9 @@ class UserProfiles(AbstractUser):
 class EmailVerifyRecord(models.Model):
     code = models.CharField(max_length=20, verbose_name=u'验证码')
     email = models.EmailField(max_length=50, verbose_name=u'邮箱')
+    # choices 函数的用途：在后台管理系统中，只能通过选择提供的值，而不能输入
     send_type = models.CharField(choices=(('regist', u'注册'), ('forget', u'找回密码')),
-                                 max_length=20, verbose_name=u'发送类型')
+                                 max_length=20, verbose_name=u'验证码类型')
     # 这里要主要，timezone.now 不能加括号，如果不去掉括号，默认值会设定为 model 编译的时间进行设定
     # 去除后，会在 EmailVerifyRecord 类实例化的时候给出默认值
     send_time = models.DateTimeField(default=timezone.now, verbose_name=u'发送时间')
@@ -45,6 +46,9 @@ class EmailVerifyRecord(models.Model):
     class Meta:
         verbose_name = u'邮件验证码'
         verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return '{0} > ({1})'.format(self.email, self.code)
 
 
 class ViewPage(models.Model):
