@@ -18,8 +18,8 @@ class UserProfiles(AbstractUser):
                               default=u'male', verbose_name=u'性别', max_length=6)
     address = models.CharField(max_length=150, default=u'', verbose_name=u'地址')
     mobile = models.CharField(max_length=11, null=True, blank=True, verbose_name=u'手机')
-    head_portrait = models.ImageField(upload_to=u'users/static/users/image/head_portrait/%Y/%m',
-                                      default=u'users/static/users/image/head_portrait/default.png',
+    head_portrait = models.ImageField(upload_to=u'apps/users/static/users/image/head_portrait/%Y/%m',
+                                      default=u'apps/users/static/users/image/head_portrait/default.png',
                                       max_length=200, verbose_name=u'头像')
 
     class Meta:
@@ -36,7 +36,7 @@ class EmailVerifyRecord(models.Model):
     code = models.CharField(max_length=20, verbose_name=u'验证码')
     email = models.EmailField(max_length=50, verbose_name=u'邮箱')
     # choices 函数的用途：在后台管理系统中，只能通过选择提供的值，而不能输入
-    send_type = models.CharField(choices=(('regist', u'注册'), ('forget', u'找回密码')),
+    send_type = models.CharField(choices=(('register', u'注册'), ('forget', u'找回密码')),
                                  max_length=20, verbose_name=u'验证码类型')
     # 这里要主要，timezone.now 不能加括号，如果不去掉括号，默认值会设定为 model 编译的时间进行设定
     # 去除后，会在 EmailVerifyRecord 类实例化的时候给出默认值
@@ -53,7 +53,7 @@ class EmailVerifyRecord(models.Model):
 
 class ViewPage(models.Model):
     title = models.CharField(max_length=200, verbose_name=u'标题')
-    image = models.ImageField(upload_to='users/static/users/image/view_page/%Y/%m', verbose_name=u'轮播图', max_length=500)
+    image = models.ImageField(upload_to='apps/users/static/users/image/view_page/%Y/%m', verbose_name=u'轮播图', max_length=500)
     url = models.URLField(max_length=200, verbose_name=u'访问地址')
     add_time = models.DateTimeField(default=timezone.now, verbose_name=u'添加时间')
     index = models.IntegerField(default=100, verbose_name=u'顺序')
