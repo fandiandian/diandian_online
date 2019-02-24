@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+
+{% load static %}
+
+<head>
+	<meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" >
+	<title>找回密码</title>
+	<link rel="stylesheet" type="text/css" href="{% static 'users/css/forgetpwd/reset.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'users/css/forgetpwd/login.css' %}">
+</head>
+<body>
+<div class="bg" id="dialogBg"></div>
+<header>
+    <div class="c-box fff-box">
+        <div class="wp header-box">
+            <p class="fl hd-tips">点点网，在线学习平台！</p>
+            <ul class="fr hd-bar">
+                <li>服务电话：<span>4008888888</span></li>
+                <li><a href="{% url 'users:login' %}">[登录]</a></li>
+                <li class="active"><a href="{% url 'users:forget_password' %}">[忘记密码]</a></li>
+            </ul>
+        </div>
+    </div>
+</header>
+<section>
+    <div class="c-box bg-box">
+        <div class="login-box clearfix">
+            <div class="hd-login clearfix">
+                <a class="index-logo" href="{% url 'index' %}"></a>
+                {% if msg_type == False %}
+                    <h1>忘记密码</h1>
+                {% else %}
+                    <h1>重置密码</h1>
+                {% endif %}
+                <a class="index-font" href="{% url 'index' %}">回到首页</a>
+            </div>
+            <div class="fl slide">
+                <div class="imgslide">
+                    <ul class="imgs">
+                        <li><a href=""><img width="483" height="472" src="{% static 'users/images/forgetpwd/57a801860001c34b12000460.jpg' %}" /></a></li>
+                        <li><a href=""><img width="483" height="472" src="{% static 'users/images/forgetpwd/57a801860001c34b12000460.jpg' %}" /></a></li>
+                        <li><a href=""><img width="483" height="472" src="{% static 'users/images/forgetpwd/57a801860001c34b12000460.jpg' %}" /></a></li>
+                    </ul>
+                </div>
+                <div class="unslider-arrow prev"></div>
+                <div class="unslider-arrow next"></div>
+            </div>
+            {% if msg_type == False %}
+                <div class="fl form-box">
+                    <h2>信息填写</h2>
+                    {% if msg_send_successful %}
+                        <div class="error btns" id="jsForgetTips">
+                           {{ msg_send_successful }}
+                        </div>
+                    {% else %}
+                        <form id="jsFindPwdForm" method="post" action="{% url 'users:forget_password' %}" autocomplete="off">
+                            {% csrf_token %}
+                            <div class="form-group marb20 {% if forget_password_form.errors.username %}errorput{% endif %}">
+                                <label>帐&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号</label>
+                                <input type="text" id="account" name="username" placeholder="请输入要找回密码的帐号"
+                                       value="{% if forget_password_form.username.value %}{{ forget_password_form.username.value }}{% endif %}"  />
+                            </div>
+                            <div class="form-group marb20 {% if forget_password_form.errors.email %}errorput{% endif %}">
+                                <label>邮&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;箱</label>
+                                <input type="text" id="account" name="email" placeholder="请输入注册时的邮箱"
+                                       value="{% if forget_password_form.email.value %}{{ forget_password_form.email.value }}{% endif %}"  />
+                            </div>
+                            <div class="form-group captcha1 marb38 {% if forget_password_form.errors.captcha %}errorput{% endif %}">
+                                <label>验&nbsp;证&nbsp;码</label>
+                                {{ forget_password_form.captcha }}
+                            </div>
+                            <div class="error btns" id="jsForgetTips">
+                                <!-- 提示信息 -->
+                                {% if forget_password_form.errors|length > 0 %}高亮处的信息填写有误，请正确填写{% endif %}
+                                {{ msg_email_send_error }}{{ msg_username_error }}{{ msg_failure }}
+                            </div>
+                            <input class="btn btn-green" id="jsFindPwdBtn" type="submit" value="提交" />
+                            <p class="form-p" style="bottom:40px;">您还可以<a href="{% url 'users:login' %}"> [直接登录]</a></p>
+                        </form>
+                    {% endif %}
+                </div>
+            {% endif %}
+            {% if msg_type == True %}
+                <div class="fl form-box">
+                    <h2>重新设置密码</h2>
+                    <form id="jsFindPwdForm" method="post" action="{% url 'users:reset_password' %}" autocomplete="off">
+                        {% csrf_token %}
+                        <div class="form-group marb20 {% if reset_password_form.errors.username %}errorput{% endif %}">
+                                <label>密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码</label>
+                                <input type="password" id="jsResetPwd" name="password" placeholder="请输入新密码"
+                                       value="{% if reset_password_form.username.value %}{{ reset_password_form.username.value }}{% endif %}"  />
+                        </div>
+                        <div class="form-group marb20 {% if reset_password_form.errors.email %}errorput{% endif %}">
+                                <label>确认密码</label>
+                                <input type="password" id="jsResetPwd2" name="password2" placeholder="请再次输入新密码"
+                                       value="{% if reset_password_form.email.value %}{{ reset_password_form.email.value }}{% endif %}"  />
+                        </div>
+                        <div class="form-group captcha1 marb38 {% if reset_password_form.errors.captcha %}errorput{% endif %}">
+                                <label>验&nbsp;证&nbsp;码</label>
+                                {{ reset_password_form.captcha }}
+                        </div>
+                        <div class="error btns" id="jsSetNewPwdTips">
+                            {% if forget_password_form.errors|length > 0 %}高亮处的信息填写有误，请正确填写{% endif %}
+                                {{ msg_equal_error }}
+                        </div>
+                        <input type="hidden" name="username" value="{{ user_name }}" />
+                        <input class="btn btn-green" id="jsFindPwdBtn" type="submit" value="提交" />
+                        <p class="form-p information">
+                            密码重置成功后将自动跳转登录页面<br />
+                            请在页面跳转后请重新登录
+                        </p>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<input id="isLogin" type="hidden" value="False"/>
+<script src="{% static 'users/js/forgetpwd/jquery.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'users/js/forgetpwd/unslider.js' %}" type="text/javascript"></script>
+<script src="{% static 'users/js/forgetpwd/validateDialog.js' %}"  type="text/javascript"></script>
+<script src="{% static 'users/js/forgetpwd/login.js' %}"  type="text/javascript"></script>
+</body>
+</html>

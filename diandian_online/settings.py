@@ -33,6 +33,11 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+AUTHENTICATION_BACKENDS = [
+    'users.views.CustomBackend',
+]
+
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -41,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 安装自定义的应用
     'users.apps.UsersConfig',
     'courses.apps.CoursesConfig',
     'organizations.apps.OrganizationsConfig',
@@ -49,6 +55,8 @@ INSTALLED_APPS = [
     # 需要将 django-crispy-forms 改成 crispy_forms
     'xadmin',
     'crispy_forms',
+    # 加载第三方的验证码组件 captcha
+    'captcha',
 ]
 AUTH_USER_MODEL = 'users.UserProfiles'
 
@@ -68,7 +76,10 @@ ROOT_URLCONF = 'diandian_online.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+            os.path.join(BASE_DIR, 'apps', 'users', 'templates', 'users'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -92,7 +103,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'diandian_online',
         'USER': 'root',
-        'PASSWORD': 'huozhe_723',
+        'PASSWORD': '123456',
         'HOST': '127.0.0.1',
     }
 }
@@ -135,3 +146,18 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# 配制静态文件路径
+STATICFILES_DIRS =[
+    os.path.join(BASE_DIR, 'apps', 'users', 'static'),
+    os.path.join(BASE_DIR, 'static'),
+]
+
+
+# 配置邮件发送
+EMAIL_HOST = 'smtp.qq.com'
+EMAIL_PORT = 25
+EMAIL_HOST_USER= 'yzmumu@qq.com'
+EMAIL_HOST_PASSWORD = 'artvkuunrcvmbgia'
+EMAIL_HOST_TSL = False
+EMAIL_FROM = 'yzmumu@qq.com'

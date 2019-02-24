@@ -13,7 +13,7 @@ class Course(models.Model):
     student_number = models.IntegerField(default=0, verbose_name=u'学习人数')
     collect_number = models.IntegerField(default=0, verbose_name=u'收藏人数')
     course_mark = models.FloatField(default=10.0, verbose_name=u'课程总评分')
-    course_image = models.ImageField(upload_to='apps/courses/static/courses/image/%Y/%m',
+    course_image = models.ImageField(upload_to='apps/courses/static/courses/images/%Y/%m',
                                      max_length=500, verbose_name=u'课程图片')
     # 点击量不同于学习人数，用于统计点击/学习转化比，每次点开一次课程，点击量加 1
     click_number = models.IntegerField(default=0, verbose_name=u'点击量')
@@ -52,7 +52,7 @@ class Section(models.Model):
 class CourseResource(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name=u'课程相关资源')
     resource_name = models.CharField(max_length=50, verbose_name=u'资源名称')
-    download = models.FileField(upload_to='apps/courses/static/courses/resource/%Y/%m',
+    download = models.FileField(upload_to='apps/courses/static/courses/resources/%Y/%m',
                                 max_length=200, verbose_name=u'资源文件')
     add_time = models.DateTimeField(default=timezone.now, verbose_name=u'资源添加时间')
 

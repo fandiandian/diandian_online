@@ -18,6 +18,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='courseresource',
             name='download',
-            field=models.FileField(max_length=200, upload_to='apps/courses/static/courses/resource/%Y/%m', verbose_name='资源文件'),
+            field=models.FileField(max_length=200, upload_to='apps/courses/static/courses/resources/%Y/%m', verbose_name='资源文件'),
         ),
     ]
