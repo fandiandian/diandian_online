@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+{% extends 'base_org_home_page.html' %}
+{% load static %}
+
+<head>
+
+    <!-- 页面标题每个页面需自定义 -->
+    {% block html_title %}<title>机构介绍 - 点点在线网</title>{% endblock %}
+
+    <!--网页自定义的外联js-->
+    {% block custom_head_js %}
+        <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/jquery-migrate-1.2.1.min.js' %}"></script>
+    {% endblock %}
+
+</head>
+<body>
+
+<!-- 每个网页的面包屑导航，需自定义（按需体现） -->
+{% block custom_breadcrumbs %}
+
+    <section>
+        <div class="wp">
+            <ul class="crumbs">
+                <li><a href="{% url 'index' %}">首页</a>></li>
+                <li><a href="{% url 'organizations:organizations_list' %}">课程机构</a>></li>
+                <li>机构介绍</li>
+            </ul>
+        </div>
+    </section>
+
+{% endblock %}
+
+<!-- 页面右侧主体内容 -->
+{% block custom_right_body %}
+
+    <div class="right companycenter layout">
+        <div class="head">
+            <h1>机构介绍</h1>
+        </div>
+        <div class="des">
+            {% autoescape off %}
+                {{ org_info.description }}
+            {% endautoescape %}
+        </div>
+    </div>
+
+{% endblock %}
+
+
+</body>
+</html>
+
+
+
+
+
+
+

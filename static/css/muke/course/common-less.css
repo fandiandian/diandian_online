@@ -346,6 +346,7 @@ i {
 .course-info-main .content {
     float: left;
     width: 100%;
+    height: auto;
     overflow: hidden;
     *zoom: 1;
 }
@@ -755,6 +756,7 @@ i {
 }
 #notice {
     background: #fff4e8;
+    margin-bottom: 20px;
     clear: both;
     color: #ff7a39;
     padding: 5px 10px 0;

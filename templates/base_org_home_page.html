@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+
+{% load static %}
+
+<head>
+
+    <!-- 页头公共部分 -->
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/animate.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'js/plugins/queryCity/css/cityLayout.css' %}">
+
+
+    <!-- 网页的 favicon.ico 文件,若果不申明，浏览器中 F12 会发现 favicon.ico 加载错误-->
+    <!-- 错误详情 "GET /favicon.ico HTTP/1.1" 404 Not Found: /favicon.ico -->
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+
+    <!-- 自定义「js」文件引用声明,jQuery 需要在最前面进行申明 -->
+    {% block custom_head_js %}
+    {% endblock %}
+
+    <!-- 页面专属「js」文件 需自定义(代码直接写在「html文件」中)-->
+    {% block html_owner_js %}
+    {% endblock %}
+
+
+    <script type='text/javascript' src="{% static 'js/selectUi.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/deco-common.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/laydate/laydate.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/layer/layer.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/queryCity/js/public.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/unslider.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/jquery.scrollLoading.js' %}"></script>
+
+    <script type="text/javascript" src="{% static 'js/plugins/jquery.raty.js' %}"></script>
+    <script type="text/javascript">
+        //收藏分享
+        function add_fav(current_elem, fav_id, fav_type) {
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "{% url 'organizations:add_collection' %}",
+                data: {'fav_id': fav_id, 'fav_type': fav_type},
+                async: true,
+                {% comment %}
+                这里是 js 的写法，由于收藏功能并没有写在「form」标签中，所以要在这里添加上「csrf_token」
+                 -> {% csrf_token %} 会在「html」中生成一段「html代码」
+                 -> {{ csrf_token }} 则是取出「csrf_token」的值
+                {% endcomment %}
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function (data) {
+                    if (data.status === 'fail') {
+                        if (data.msg === '用户未登录') {
+                            window.location.href = "{% url 'users:login' %}";
+                        } else {
+                            alert(data.msg)
+                        }
+                    } else if (data.status === 'success') {
+                        current_elem.text(data.msg)
+                    }
+                },
+            });
+        }
+
+        $(document).ready(function () {
+            {# 监控按钮「collection」的点击事件 #}
+            $('.collectionbtn').on('click', function () {
+                {#参数：第一个是机构的「id」，第二个是收藏的类型「2代表收藏的类型是 课程机构」#}
+                add_fav($(this), {{ org_id }}, 2);
+            });
+        });
+        $(function () {
+            var $precision = $('.precision'),
+                score = $precision.attr('data-star-scope'),
+                option = {
+                    half: true,
+                    path: '{% static 'images' %}',
+                    precision: true,
+                    size: 24,
+                    starOff: 'g_star.png',
+                    starOn: 'r_star.png',
+                    starHalf: 'h_star.png',
+                    hints: ['极差', '差', '一般', '好评', '非常满意'],
+                    noRatedMsg: '暂时还未获得评价！',
+                    readOnly: true,
+                    score: score
+                };
+            $precision.raty(option);
+
+            $(document).ready(function () {
+                $('.jsFavBtn').on('click', function () {
+                    var type = $(this).attr('data-fav-type');
+                    if (type === '1') {
+                        favPraise($(this), 'fav', 1, '收藏');
+
+                    } else if (type === '3') {
+                        favPraise($(this), 'fav', 3);
+
+                    } else if (type === '11') {
+                        favPraise($(this), 'pra', 1);
+
+                    } else if (type === '4') {
+                        favPraise($(this), 'fav', 4);
+
+                    }
+                });
+            });
+        })
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $('.recordbtn1').click(function () {
+                $('.recordbox1').show();
+            });
+            $('.recordbtn2').click(function () {
+                $('.recordbox2').show();
+            });
+
+            $('.imgslide').unslider({
+                speed: 500,               //  The speed to animate each slide (in milliseconds)
+                delay: 3000,              //  The delay between slide animations (in milliseconds)
+                complete: function () {
+                },  //  A function that gets called after every slide animation
+                keys: true,               //  Enable keyboard (left, right) arrow shortcuts
+                dots: true,               //  Display dot navigation
+                fluid: false              //  Support responsive design. May break non-responsive designs
+            });
+            var unslider = $('.imgslide').unslider();
+            $('.unslider-arrow').click(function () {
+                var fn = this.className.split(' ')[1];
+                unslider.data('unslider')[fn]();
+            });
+        });
+    </script>
+
+
+    {% comment %}
+    「html」页面使用了「ajax」进行异步数据的请求与响应时，会产生「403」错误。经查询，「django」的官方提供以解决方案
+    将官方给出的代码保存到一个「js文件」中，并在「html」页面中导入
+    记得一定要在加载完「jQuery」之后加载
+    {% endcomment %}
+    <script type="text/javascript" src="{% static 'js/crsf_ajax.js' %}"></script>
+
+
+    <!-- 页面标题每个页面需自定义 -->
+    {% block html_title %}<title>点点在线网 - 首页</title>{% endblock %}
+
+    <!-- 自定义「css」文件引用声明 -->
+    {% block custom_head_css %}
+    {% endblock %}
+
+
+</head>
+
+<body>
+<!-- 页眉数据，部分公用, 内部包含页眉定制数据 -->
+<section class="headerwrap headerwrap2">
+    <header>
+        <div class="header2 header">
+
+            <!-- 顶部页眉，公用 -->
+            {% if not request.user.is_authenticated %}
+                <div class="top">
+                    <div class="wp">
+                        <div class="fl">
+                            <p>服务电话：<b>4008888888</b></p>
+                        </div>
+                        <a style="color:white" class="fr registerbtn" href="{% url 'users:register' %}">注册</a>
+                        <a style="color:white" class="fr loginbtn" href="{% url 'users:login' %}">登录</a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="top">
+                    <div class="wp">
+                        <div class="fl"><p>服务电话：<b>4008888888</b></p></div>
+                        <!--登录后跳转-->
+                        <div class="personal">
+                            <dl class="user fr">
+                                <dd>{{ request.user.username }}<img class="down fr" src="{% static 'images/top_down.png' %}"/>
+                                </dd>
+                                <dt><img width="20" height="20" src="{{ MEDIA_URL }}{{ request.user.head_portrait }}"/>
+                                </dt>
+                            </dl>
+                            <div class="userdetail">
+                                <dl>
+                                    <dt><img width="80" height="80" src="
+                                            {{ MEDIA_URL }}{{ request.user.head_portrait }}"/></dt>
+                                    <dd>
+                                        <h2>django</h2>
+                                        <p>{{ request.user.username }}</p>
+                                    </dd>
+                                </dl>
+                                <div class="btn">
+                                    <a class="personcenter fl" href="{% url 'operations:user_center_information' %}">进入个人中心</a>
+                                    <a class="fr" href="{% url 'users:logout' %}">退出</a>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{% url 'operations:user_center_messages' %}">
+                            <div class="msg-num"><span id="MsgNum">{{ request.user.get_user_unread_messages}}</span></div>
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- 机构logo -->
+            <div class="middle companyheader">
+        <div class="wp">
+            <img class="fl" style="width: 112px;height: 103px" src="{{ MEDIA_URL }}{{ org_info.organization_image }}"/>
+            <div class="head fl">
+                <h1>
+                    {{ org_info.organization_name }}
+                    <img src="{% static 'images/authentication.png' %}"/>
+                    <img src="{% static 'images/gold.png' %}"/>
+                </h1>
+                <p class="fl">
+                    <span class="fl" style="margin-top:8px;color:#848484;">机构评价： </span>
+                    <span class="precision company-credit" data-star-scope="5.0"></span>
+                    <span class="key">{{ org_info.organization_mark }}</span>
+                </p>
+            </div>
+            <div class="btn fr collectionbtn  notlogin" data-favid="22" data-fav-type="1">
+                {{ is_collected }}
+            </div>
+        </div>
+    </div>
+
+        </div>
+    </header>
+</section>
+
+<!-- 每个网页的面包屑导航，需自定义（按需体现） -->
+{% block custom_breadcrumbs %}
+{% endblock %}
+
+
+<!-- 每个网页的页面主体，需自定义 -->
+<section>
+    <div class="wp list personal_list comp">
+        <div class="left">
+            <ul>
+                <li class={% if left_focus == 'home' %}"active2"{% endif %}>
+                    <a href="{% url 'organizations:organization_detail_homepage' org_id %}">机构首页</a>
+                </li>
+                <li class={% if left_focus == 'course' %}"active2"{% endif %}>
+                    <a href="{% url 'organizations:organization_detail_courses' org_id %}">机构课程</a>
+                </li>
+                <li class={% if left_focus == 'teacher' %}"active2"{% endif %}>
+                    <a href="{% url 'organizations:organization_detail_teachers' org_id %}">机构讲师</a>
+                </li>
+                <li class={% if left_focus == 'description' %}"active2"{% endif %}>
+                    <a href="{% url 'organizations:organization_detail_description' org_id %}">机构介绍</a>
+                </li>
+            </ul>
+        </div>
+        <!-- 页面右侧主体内容 -->
+        {% block custom_right_body %}
+        {% endblock %}
+
+</section>
+
+
+
+<!-- 回到顶部（按需体现） -->
+{% block back_to_top %}
+    <section>
+        <ul class="sidebar">
+            <li class="qq">
+                <a target="_blank" href="http://wpa.qq.com/msgrd?v=3&uin=2023525077&site=qq&menu=yes"></a>
+            </li>
+            <li class="totop"></li>
+        </ul>
+    </section>
+{% endblock %}
+
+</body>
+</html>

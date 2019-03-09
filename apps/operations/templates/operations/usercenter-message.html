@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+
+{% extends 'base_usercenter.html' %}
+{% load static %}
+
+<head>
+
+    {% block custom_head_js %}
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('.jsDeleteFav_course').on('click', function () {
+                    var _this = $(this),
+                        favid = _this.attr('data-favid');
+                    alert(favid);
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "/org/add_fav/",
+                        data: {
+                            fav_type: 1,
+                            fav_id: favid,
+                            csrfmiddlewaretoken: '799Y6iPeEDNSGvrTu3noBrO4MBLv6enY'
+                        },
+                        async: true,
+                        success: function (data) {
+                            Dml.fun.winReload();
+                        }
+                    });
+                });
+            });
+
+            $(document).ready(function() {
+                $('.jsDeleteFav_teacher').on('click', function () {
+                    var _this = $(this),
+                        favid = _this.attr('data-favid');
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "/org/add_fav/",
+                        data: {
+                            fav_type: 3,
+                            fav_id: favid,
+                            csrfmiddlewaretoken: '799Y6iPeEDNSGvrTu3noBrO4MBLv6enY'
+                        },
+                        async: true,
+                        success: function (data) {
+                            Dml.fun.winReload();
+                        }
+                    });
+                });
+            });
+            $(document).ready(function() {
+                $('.jsDeleteFav_org').on('click', function () {
+                    var _this = $(this),
+                        favid = _this.attr('data-favid');
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "/org/add_fav/",
+                        data: {
+                            fav_type: 2,
+                            fav_id: favid,
+                            csrfmiddlewaretoken: '799Y6iPeEDNSGvrTu3noBrO4MBLv6enY'
+                        },
+                        async: true,
+                        success: function (data) {
+                            Dml.fun.winReload();
+                        }
+                    });
+                });
+            });
+        </script>
+        <script type="text/javascript">
+                var shareUrl = '',
+                    shareText = '',
+                    shareDesc = '',
+                    shareComment = '';
+                $(function () {
+                    $(".bdsharebuttonbox a").mouseover(function () {
+                        var type = $(this).attr('data-cmd'),
+                            $parent = $(this).parent('.bdsharebuttonbox'),
+                            fxurl = $parent.attr('data-url'),
+                            fxtext = $parent.attr('data-text'),
+                            fxdesc = $parent.attr('data-desc'),
+                            fxcomment = $parent.attr('data-comment');
+                        switch (type){
+                            case 'tsina':
+                            case 'tqq':
+                            case 'renren':
+                                    shareUrl = fxurl;
+                                    shareText = fxdesc;
+                                    shareDesc = '';
+                                    shareComment = '';
+                                break;
+                            default :
+                                    shareUrl = fxurl;
+                                    shareText = fxtext;
+                                    shareDesc = fxdesc;
+                                    shareComment = fxcomment;
+                                break;
+                        }
+                    });
+                });
+                function SetShareUrl(cmd, config) {
+                    if (shareUrl) {
+                        config.bdUrl = "" + shareUrl;
+                    }
+                    if(shareText){
+                        config.bdText = shareText;
+                    }
+                    if(shareDesc){
+                        config.bdDesc = shareDesc;
+                    }
+                    if(shareComment){
+                        config.bdComment = shareComment;
+                    }
+
+                    return config;
+                }
+                window._bd_share_config = {
+                    "common": {
+                        "onBeforeClick":SetShareUrl,
+                        "bdPic":"",
+                        "bdMini":"2",
+                        "searchPic":"1",
+                        "bdMiniList":false
+                    },
+                    "share": {
+                        "bdSize":"16"
+                    }
+                };
+                with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'http://bdimg.share.baidu.com../api/js/share.js?v=89860593.js?cdnversion=' + ~(-new Date() / 36e5)];
+        </script>
+    {% endblock %}
+
+    {% block html_title %}
+        <title>我的消息- 点点在线网</title>
+    {% endblock %}
+
+</head>
+<body>
+
+
+    <!-- 每个网页的面包屑导航，需自定义（按需体现） -->
+    {% block custom_breadcrumbs %}
+        <section>
+            <div class="wp">
+                <ul  class="crumbs">
+                    <li><a href="{% url 'index' %}">首页</a>></li>
+                    <li><a href="{% url 'operations:user_center_information' %}">个人中心</a>></li>
+                    <li>我的消息</li>
+                </ul>
+            </div>
+        </section>
+    {% endblock %}
+
+    {% block custom_body %}
+        <div class="right" >
+		<div class="personal_des Releasecont">
+			<div class="head">
+				<h1>我的消息</h1>
+			</div>
+
+		</div>
+		<div class="personal_des permessage">
+			<div class="head">
+				<ul class="tab_header messagehead">
+					<li class="active"><a href="{% url 'operations:user_center_messages' %}">个人消息</a> </li>
+				</ul>
+			</div>
+			<div class="messagelist">
+                {% for message in user_messages.object_list %}
+                    <div class="messages">
+                        <div class="fr">
+                            <div class="top">
+                                <span class="fl time">{{ message.send_time }}</span>
+                                <span class="has-read">{% if message.has_read %} 已读 {% else %} 未读 {% endif %}</span>
+                                <span class="fr btn foldbtn" id="jsReadable"></span>
+                            </div>
+                            <p>
+                                {{ message.message }}
+                            </p>
+                        </div>
+                    </div>
+                {% endfor %}
+			</div>
+			<div class="pageturn pagerright">
+                <ul class="pagelist">
+                    {% if user_messages.has_previous %}
+                        <li class="long">
+                            <a href="?{{ user_messages.previous_page_number.querystring }}">上一页</a>
+                        </li>
+                        {# 如果没有前一页，则不显示上一页字样#}
+                    {% endif %}
+                    {% for page in user_messages.pages %}
+                        {% if page %}
+                            {% ifequal page user_messages.number %}
+                                <li class="active">{{ page }}</li>
+                            {% else %}
+                                <li><a href="?{{ page.querystring }}" class="page">{{ page }}</a></li>
+                            {% endifequal %}
+                        {% else %}
+                        {# 如果页面没有分页，则不显示任何内容#}
+                            <li class="none"><a href="" class="page">...</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if user_messages.has_next %}
+                        <li class="long"><a href="?{{ user_messages.next_page_number.querystring }}">下一页</a></li>
+                        {# 如果没有下一页，则不显示下一页字样#}
+                    {% endif %}
+                </ul>
+            </div>
+		</div>
+
+	</div>
+    {% endblock %}
+
+</body>
+</html>

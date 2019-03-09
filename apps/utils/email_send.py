@@ -29,8 +29,11 @@ def send_email_verify_record(email, send_type='register', username=''):
     elif send_type == 'forget':
         email_title = '点点在线网找回密码链接'
         email_body = '请点击的链接重置你的密码：http://127.0.0.1:8000/users/forget/{0}/{1}'.format(username, code)
+    elif send_type == 'reset_email':
+        email_title = '点点在线网重置邮箱验证码'
+        email_body = '请将邮件的的验证码填写至修改邮箱的页面中：{0}'.format(code)
 
-     # 使用 try 来避免网络波动，或者邮件后台配制错误引发的错误，如果没有问题，返回一个 True
+    # 使用 try 来避免网络波动，或者邮件后台配制错误引发的错误，如果没有问题，返回一个 True
     try:
         send_status = send_mail(email_title, email_body, EMAIL_FROM, [email])
     except Exception as e:

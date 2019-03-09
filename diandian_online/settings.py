@@ -18,6 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # 应为添加到了将根目录下的所有应用文件都转移到到了 apps 目录下了
 # 所以要将 apps 目录的路径添加到 django 的搜索路径中，否则会导致模块导入失败
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
+sys.path.insert(0, os.path.join(BASE_DIR, 'extra_apps'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -29,7 +30,7 @@ SECRET_KEY = '5ydy$2vx8hk5uh5s6$mqc595&&hfn3j(ol)jn&+pm=kjk)-mz&'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -46,20 +47,30 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #  站点框架
+    'django.contrib.sites',
     # 安装自定义的应用
-    'users.apps.UsersConfig',
-    'courses.apps.CoursesConfig',
-    'organizations.apps.OrganizationsConfig',
-    'operations.apps.OperationsConfig',
+    'apps.users.apps.UsersConfig',
+    'apps.courses.apps.CoursesConfig',
+    'apps.organizations.apps.OrganizationsConfig',
+    'apps.operations.apps.OperationsConfig',
     # 将 xadmin 和 crispy_forms （django-crispy-forms）添加到 INSTALLED_APPS 中
     # 需要将 django-crispy-forms 改成 crispy_forms
     'xadmin',
     'crispy_forms',
     # 加载第三方的验证码组件 captcha
     'captcha',
+    # 加载第三方的页面分页功能
+    'pure_pagination',
+    # 加载xadmin的第三方插件--富文本编辑器
+    'DUEditor',
+
 ]
+# 用户基础模型
 AUTH_USER_MODEL = 'users.UserProfiles'
 
+# 站点框架设置
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -78,7 +89,10 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, 'templates'),
-            os.path.join(BASE_DIR, 'apps', 'users', 'templates', 'users'),
+            os.path.join(BASE_DIR, 'apps/users/templates/users'),
+            os.path.join(BASE_DIR, 'apps/organizations/templates/organizations'),
+            os.path.join(BASE_DIR, 'apps/courses/templates/courses'),
+            os.path.join(BASE_DIR, 'apps/operations/templates/operations'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -87,6 +101,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # 配置 MEDIA_URL，使其可以在 Template 模版中使用
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -150,6 +166,7 @@ STATIC_URL = '/static/'
 # 配制静态文件路径
 STATICFILES_DIRS =[
     os.path.join(BASE_DIR, 'apps', 'users', 'static'),
+
     os.path.join(BASE_DIR, 'static'),
 ]
 
@@ -161,3 +178,41 @@ EMAIL_HOST_USER= 'yzmumu@qq.com'
 EMAIL_HOST_PASSWORD = 'artvkuunrcvmbgia'
 EMAIL_HOST_TSL = False
 EMAIL_FROM = 'yzmumu@qq.com'
+
+
+# 配制用户上传文件
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# 分页功能的基础配制
+PAGINATION_SETTINGS = {
+    'PAGE_RANGE_DISPLAYED': 10,
+    'MARGIN_PAGES_DISPLAYED': 2,
+
+    'SHOW_FIRST_PAGE_WHEN_INVALID': True,
+}
+
+
+# 在网站未上线前，调试404等错误页面
+# STATIC_ROOTS = os.path.join(BASE_DIR, 'static')
+
+
+# DUEditor 第三方的富文本编辑器的 settings 设定
+UEDITOR_SETTINGS={
+    "toolbars": {           #定义多个工具栏显示的按钮，允行定义多个
+        "name1": [[ 'source', '|', 'bold', 'italic', 'underline']],
+        "name2": []
+    },
+    "images_upload": {
+        "allow_type": "jpg,png",    #定义允许的上传的图片类型
+        "max_size": "2222kb"        #定义允许上传的图片大小，0代表不限制
+    },
+    "files_upload": {
+         "allow_type": "zip,rar",   #定义允许的上传的文件类型
+         "max_size": "2222kb"       #定义允许上传的文件大小，0代表不限制
+     },
+    "image_manager": {
+         "location": ""             #图片管理器的位置,如果没有指定，默认跟图片路径上传一样
+    },
+}

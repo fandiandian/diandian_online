@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+{% extends 'base_org_home_page.html' %}
+{% load static %}
+
+<head>
+
+    <!-- 页面标题每个页面需自定义 -->
+    {% block html_title %}<title>机构教师 - 点点在线网</title>{% endblock %}
+
+    <!--网页自定义的外联js-->
+    {% block custom_head_js %}
+        <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/jquery-migrate-1.2.1.min.js' %}"></script>
+    {% endblock %}
+
+
+</head>
+<body>
+
+<!-- 每个网页的面包屑导航，需自定义（按需体现） -->
+{% block custom_breadcrumbs %}
+
+    <section>
+        <div class="wp">
+            <ul class="crumbs">
+                <li><a href="{% url 'index' %}">首页</a>></li>
+                <li><a href="{% url 'organizations:organizations_list' %}">课程机构</a>></li>
+                <li>机构教师</li>
+            </ul>
+        </div>
+    </section>
+
+{% endblock %}
+
+<!-- 页面右侧主体内容 -->
+{% block custom_right_body %}
+
+    <div class="right companycenter layout">
+        <div class="head">
+            <h1>全部讲师</h1>
+        </div>
+        <div class="messagelist">
+            <div class=" butler_list butler-fav-box">
+                {% for teacher in teachers.object_list %}
+                    <dl class="des users">
+                        <dt>
+                            <a href="{% url 'organizations:teacher_detail' teacher.id %}">
+                                <img width="100" height="100" class="scrollLoading" data-url="
+                                        {{ MEDIA_URL }}{{ teacher.teacher_image }}" src="#"/>
+                            </a>
+                        </dt>
+                        <dd>
+                            <h1 style="margin-left: 17px">
+                                <a href="{% url 'organizations:teacher_detail' teacher.id %}">
+                                    {{ teacher.teacher_name }}
+                                </a>
+                                <span class="key">已认证</span>
+                            </h1>
+                            <ul class="cont clearfix">
+                                <li class="time">工作年限：<span>{{ teacher.work_year }}</span></li>
+                                <li class="c7"> 课程数：<span>{{ teacher.get_course_number_teacher }}</span></li>
+                            </ul>
+                            <div style="margin-left: 25px;">
+                                <a href="{% url 'courses:course_detail' teacher.get_valuable_course.id %}">
+                                    <span style="color: #323232">
+                                        经典课程：{{ teacher.get_valuable_course.course_name }}
+                                    </span>
+                                </a>
+                            </div>
+                        </dd>
+                    </dl>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="pageturn">
+            <ul class="pagelist">
+                {% if teachers.has_previous %}
+                    <li class="long">
+                        <a href="?{{ teachers.previous_page_number.querystring }}">上一页</a>
+                    </li>
+                    {# 如果没有前一页，则不显示上一页字样#}
+                {% endif %}
+                {% for page in teachers.pages %}
+                    {% if page %}
+                        {% ifequal page teachers.number %}
+                            <li class="active">{{ page }}</li>
+                        {% else %}
+                            <li><a href="?{{ page.querystring }}" class="page">{{ page }}</a></li>
+                        {% endifequal %}
+                    {% else %}
+                        {# 如果页面没有分页，则不显示任何内容#}
+                        <li class="none"><a href="" class="page">...</a></li>
+                    {% endif %}
+                {% endfor %}
+                {% if teachers.has_next %}
+                    <li class="long"><a href="?{{ teachers.next_page_number.querystring }}">下一页</a></li>
+                    {# 如果没有下一页，则不显示下一页字样#}
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+</body>
+</html>

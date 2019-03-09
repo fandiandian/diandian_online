@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+
+{% extends 'base.html' %}
+{% load static %}
+
+<head>
+    {% block html_title %}<title>课程评论-点点在线网</title>{% endblock %}
+
+    {% block custom_head_css %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/muke/base.css' %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/muke/common-less.css' %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/muke/course/learn-less.css' %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/mooc.css' %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/muke/course/common-less.css' %}">
+	    <link rel="stylesheet" type="text/css" href="{% static 'css/muke/course/course-comment.css' %}" />
+    {% endblock %}
+
+
+    {% block custom_head_js %}
+        <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/jquery-migrate-1.2.1.min.js' %}"></script>
+        <script type="text/javascript">
+            //添加评论
+            $(document).ready(function () {
+                $('#js-pl-submit').on('click', function () {
+                    var comments = $("#js-pl-textarea").val();
+                    var course_mark = $("input[name='course_mark']:checked").val();
+                    if (comments === "") {
+                        alert("评论不能为空");
+                        return
+                    }
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "{% url 'courses:add_course_comment' %}",
+                        data: {'course_id': {{ course.id }}, 'course_mark':course_mark, 'comments': comments},
+                        async: true,
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                        },
+                        success: function (data) {
+                            if (data.status === 'fail') {
+                                if (data.msg === '用户未登录') {
+                                    window.location.href="{% url 'users:login' %}";
+                                } else {
+                                    alert(data.msg)
+                                }
+
+                            } else if (data.status === 'success') {
+                                window.location.reload();//刷新当前页面.
+                            }
+                        },
+                    });
+                });
+            });
+
+        </script>
+    {% endblock %}
+
+
+
+</head>
+<body>
+
+
+<!-- 自定义面包屑导航 -->
+{% block custom_breadcrumbs %}
+    <section>
+        <div class="wp">
+            <ul class="crumbs">
+                <li><a href="{% url 'index' %}">首页</a>></li>
+                {% if course.open_type == 'open' %}
+                    <li>公开课 ></li>
+                {% elif course.open_type == 'specialized' %}
+                    <li>专业课 ></li>
+                {% endif %}
+                <li><a href="{% url 'courses:course_detail' course.id %}">课程详情</a>></li>
+                <li>课程评论</li>
+            </ul>
+        </div>
+    </section>
+{% endblock %}
+
+
+<!-- 自定义页面主体 -->
+{% block custom_body %}
+    <div id="main">
+        <div class="course-infos">
+            <div class="w pr">
+                <div style="height: 15px" class="path">
+                </div>
+                <div class="hd">
+                    <h2 class="l">&nbsp;&nbsp;&nbsp;&nbsp;{{ course.course_name }}</h2>
+                </div>
+                <div class="statics clearfix">
+                    <div class="static-item ">
+                        <span class="meta-value"><strong>{{ course.get_degree_display }}</strong></span>
+                        <span class="meta">难度</span>
+                        <em></em>
+                    </div>
+                    <div class="static-item static-time">
+                        <span class="meta-value">{{ course.learn_times }}</span>
+                        <span class="meta">时长</span>
+                        <em></em>
+                    </div>
+                    <div class="static-item">
+                        <span class="meta-value"><strong>{{ course.student_number }}</strong></span>
+                        <span class="meta">学习人数</span>
+                        <em></em>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="course-info-main clearfix w has-progress">
+
+            <div class="info-bar clearfix">
+                <div class="content-wrap clearfix">
+
+                    <div class="content">
+                        <!--功能筛选-->
+                        <div class="mod-tab-menu">
+                            <ul class="course-menu clearfix">
+                                <li>
+                                    <a class="ui-tabs-active " id="learnOn" href="{% url 'courses:course_study' course.id %}"><span>章节</span></a>
+                                </li>
+                                <li>
+                                    <a id="commentOn" class="active" href="{% url 'courses:course_comment' course.id %}"><span>评论</span></a>
+                                </li>
+                            </ul>
+                        </div>
+                        <!--发布评论-->
+                        <div id="js-pub-container" class="issques clearfix js-form">
+                            <div class="mark-checkbox">
+                                课程评分:
+                                <input id="toggle1" type="radio" name="course_mark" value="10.0" checked />
+                                <label for="toggle1" class="advice"><span>10</span></label>
+                                <input id="toggle2" type="radio" name="course_mark" value="9.0" />
+                                <label for="toggle2" class="advice"><span>9</span></label>
+                                <input id="toggle3" type="radio" name="course_mark" value="8.0" />
+                                <label for="toggle3" class="advice"><span>8</span></label>
+                                <input id="toggle4" type="radio" name="course_mark" value="7.0" />
+                                <label for="toggle4" class="advice"><span>7</span></label>
+                                <input id="toggle5" type="radio" name="course_mark" value="6.0" />
+                                <label for="toggle5" class="advice"><span>6</span></label>
+                            </div>
+                            <div class="wgt-ipt-wrap pub-editor-wrap " id="js-pl-input-fake">
+                                <textarea id="js-pl-textarea" class="" placeholder="扯淡、吐槽、表扬、鼓励……想说啥就说啥！"></textarea>
+                            </div>
+                            <input type="button" id="js-pl-submit" class="pub-btn" data-cid="452" value="发表评论">
+                            <p class="global-errortip js-global-error"></p>
+                        </div>
+                        <!--评论展示-->
+                        <div id="course_note">
+                            <ul class="mod-post" id="comment-list">
+                                {% for comment in comments.object_list %}
+                                    <li class="post-row">
+                                        <div class="media">
+                                            <span><img src='{{ MEDIA_URL }}{{ comment.user.head_portrait }}' width='40' height='40'/></span>
+                                        </div>
+                                        <div class="bd">
+                                            <div class="tit">
+                                                <span class="text_left">{{ comment.user.username }}</span>
+                                                <span class="text_right"> 课程评分：<i class="key">{{ comment.course_mark }}</i></span>
+                                            </div>
+                                            <p class="cnt">
+                                                {{ comment.comment }}
+                                            </p>
+                                            <div class="footer clearfix">
+                                                <span title="创建时间" class="l timeago">时间：{{ comment.add_time }}</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <!--翻页功能, 有点问题，不知道出在那里，显示不正常-->
+                        <div class="pageturn">
+                            <ul class="pagelist">
+                                {% if comments.has_previous %}
+                                    <li class="long">
+                                        <a href="?{{ comments.previous_page_number.querystring }}">上一页</a>
+                                    </li>
+                                    {# 如果没有前一页，则不显示上一页字样#}
+                                {% endif %}
+                                {% for page in comments.pages %}
+                                    {% if page %}
+                                        {% ifequal page comments.number %}
+                                            <li class="active">{{ page }}</li>
+                                        {% else %}
+                                            <li><a href="?{{ page.querystring }}" class="page">{{ page }}</a></li>
+                                        {% endifequal %}
+                                    {% else %}
+                                    {# 如果页面没有分页，则不显示任何内容#}
+                                        <li class="none"><a href="" class="page">...</a></li>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if comments.has_next %}
+                                    <li class="long"><a href="?{{ comments.next_page_number.querystring }}">下一页</a></li>
+                                    {# 如果没有下一页，则不显示下一页字样#}
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+
+
+                    <div class="aside r">
+                        <div class="bd">
+
+                            <div class="box mb40">
+                                <h4>资料下载</h4>
+                                <ul class="downlist">
+
+                                    {% for resource in resources %}
+                                        <li>
+                                            <span style="word-wrap: break-word">&#9672; {{ resource.resource_name }}</span>
+                                            <a href="{{ MEDIA_URL }}{{ resource.download }}"
+                                               class="downcode" target="_blank"
+                                               download="{{ resource.resource_name }}" data-id="274" title="">
+                                                下载
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+
+                                </ul>
+                            </div>
+                            <div class="box mb40">
+                                <h4>讲师提示</h4>
+                                <div class="teacher-info">
+                                    <a href="{% url 'organizations:teacher_detail' course.course_teacher.id %}" target="_blank">
+                                        <img src='{{ MEDIA_URL }}{{ course.course_teacher.teacher_image }}' width='80' height='80' />
+                                    </a>
+                                        <span class="tit">
+                                          <a href="{% url 'organizations:teacher_detail' course.course_teacher.id %}" target="_blank">
+                                              {{ course.course_teacher.teacher_name }}
+                                          </a>
+                                        </span>
+                                    <span class="job">{{ course.course_teacher.company_position }}</span>
+                                </div>
+                                <div class="course-info-tip">
+                                    <dl class="first">
+                                        <dt>课程基础</dt>
+                                        <dd class="autowrap">{{ course_notice.course_notice }}</dd>
+                                    </dl>
+                                    <dl>
+                                        <dt>课程目标</dt>
+                                        <dd class="autowrap">{{ course_notice.course_goal}}</dd>
+                                    </dl>
+                                </div>
+                            </div>
+
+
+                            {% if course_recommends %}
+                                <div class="cp-other-learned  js-comp-tabs">
+                                    <div class="cp-header clearfix">
+                                        <h2 class="cp-tit l">该课的同学还学过</h2>
+                                    </div>
+                                    <div class="cp-body">
+                                        <div class="cp-tab-pannel js-comp-tab-pannel" data-pannel="course" style="display: block">
+                                            <!-- img 200 x 112 -->
+                                            <ul class="other-list">
+                                                {% for course_recommend in course_recommends %}
+                                                    <li class="curr">
+                                                        <a href="{% url 'courses:course_detail' course_recommend.course.id %}" target="_blank">
+                                                            <img src="{{ MEDIA_URL }}{{ course_recommend.course.course_image }}"
+                                                                 alt="{{ course_recommend.course.course_name }}">
+                                                            <span class="name autowrap">{{ course_recommend.course.course_name }}</span>
+                                                        </a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clear"></div>
+
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+{% extends 'base_org_home_page.html' %}
+{% load static %}
+
+<head>
+
+    <!-- 页面标题每个页面需自定义 -->
+    {% block html_title %}<title>机构课程 - 点点在线网</title>{% endblock %}
+
+    <!--网页自定义的外联js-->
+    {% block custom_head_js %}
+        <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/jquery-migrate-1.2.1.min.js' %}"></script>
+    {% endblock %}
+
+
+</head>
+<body>
+
+
+<!-- 每个网页的面包屑导航，需自定义（按需体现） -->
+{% block custom_breadcrumbs %}
+
+    <section>
+        <div class="wp">
+            <ul class="crumbs">
+                <li><a href="{% url 'index' %}">首页</a>></li>
+                <li><a href="{% url 'organizations:organizations_list' %}">课程机构</a>></li>
+                <li>机构课程</li>
+            </ul>
+        </div>
+    </section>
+
+{% endblock %}
+
+<!-- 页面右侧主体内容 -->
+{% block custom_right_body %}
+
+    <div class="right companycenter layout">
+        <div class="head">
+            <h1>全部课程</h1>
+        </div>
+        <div class="brief group_list">
+            {% for course in courses.object_list %}
+                <div class="module1_5 box">
+                    <a class="comp-img-box" href="{% url 'courses:course_detail' course.id %}">
+                        <img width="214" height="195" src="{{ MEDIA_URL }}{{ course.course_image }}"/>
+                    </a>
+                    <div class="des">
+                        <a href="{% url 'courses:course_detail' course.id %}"><h2>django入门</h2></a>
+                        <span class="fl">课时：<i class="key">{{ course.learn_times }}</i></span>
+                        <span class="fr">学习人数：{{ course.student_number }}</span>
+                    </div>
+                    <div class="bottom">
+                        <span class="fl">{{ course.course_teacher.organization }}</span>
+                        <span class="star fr  notlogin
+                            " data-favid="13" data-fav-type="4">
+                            {{ course.collect_number }}
+                        </span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="pageturn">
+            <ul class="pagelist">
+                {% if courses.has_previous %}
+                    <li class="long">
+                        <a href="?{{ courses.previous_page_number.querystring }}">上一页</a>
+                    </li>
+                    {# 如果没有前一页，则不显示上一页字样#}
+                {% endif %}
+                {% for page in courses.pages %}
+                    {% if page %}
+                        {% ifequal page courses.number %}
+                            <li class="active">{{ page }}</li>
+                        {% else %}
+                            <li><a href="?{{ page.querystring }}" class="page">{{ page }}</a></li>
+                        {% endifequal %}
+                    {% else %}
+                        {# 如果页面没有分页，则不显示任何内容#}
+                        <li class="none"><a href="" class="page">...</a></li>
+                    {% endif %}
+                {% endfor %}
+                {% if courses.has_next %}
+                    <li class="long"><a href="?{{ courses.next_page_number.querystring }}">下一页</a></li>
+                    {# 如果没有下一页，则不显示下一页字样#}
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+</body>
+</html>

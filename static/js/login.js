@@ -45,7 +45,7 @@ function zy_Countdown(){
 function refresh_captcha(event){
     $.get("/captcha/refresh/?"+Math.random(), function(result){
         $('#'+event.data.form_id+' .captcha').attr("src",result.image_url);
-        $('#'+event.data.form_id+' .form-control-captcha[type="hidden"]').attr("value",result.key);
+        $('#id_captcha_0').attr("value",result.key);
     });
     return false;
 }
@@ -342,15 +342,15 @@ $(function() {
     $('#jsChangePhoneForm .captcha').click({'form_id':'jsChangePhoneForm'},refresh_captcha);
 
     //登录
-    $('#jsLoginBtn').on('click',function(){
-        login_form_submit();
-    })
-    //登录表单键盘事件
-    $("#jsLoginForm").keydown(function(event){
-        if(event.keyCode == 13) {
-            $('#jsLoginBtn').trigger('click');
-        }
-    });
+    // $('#jsLoginBtn').on('click',function(){
+    //     login_form_submit();
+    // })
+    // //登录表单键盘事件
+    // $("#jsLoginForm").keydown(function(event){
+    //     if(event.keyCode == 13) {
+    //         $('#jsLoginBtn').trigger('click');
+    //     }
+    // });
 
     //邮箱注册
     $('#jsEmailRegBtn').on('click',function(){

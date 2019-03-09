@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+{% extends 'base.html' %}
+{% load static %}
+
+<head>
+
+    <!-- 页面标题每个页面需自定义 -->
+	{% block html_title %}<title>教师列表 - 点点在线网</title>{% endblock %}
+
+    <!--网页自定义的外联js-->
+    {% block custom_head_js %}
+        <script type="text/javascript" src="{% static 'js/jquery.min.js' %}" ></script>
+        <script type="text/javascript" src="{% static 'js/jquery-migrate-1.2.1.min.js' %}" ></script>
+    {% endblock %}
+
+</head>
+<body>
+
+    <!-- 自定义面包屑导航 -->
+    {% block custom_breadcrumbs %}
+        <section>
+            <div class="wp">
+                <ul  class="crumbs">
+                    <li><a href="{% url 'index'%}">首页</a>></li>
+                    <li>课程讲师</li>
+                </ul>
+            </div>
+        </section>
+    {% endblock %}
+
+
+    <!-- 每个网页的页面主体，需自定义 -->
+    {% block custom_body %}
+        <section>
+            <div class="wp butler_list_box list">
+                <div class='left'>
+                    <div class="butler_list layout">
+                        <div class="head">
+                            <ul class="fl tab_header">
+                                <li class="{% if sort == '' %}active{% endif %}"><a href="?sort=">全部</a> </li>
+                                <li class="{% if sort == 'hot' %}active{% endif %}"><a href="?sort=hot">人气 &#8595;</a></li>
+                            </ul>
+                            <div class="fr butler-num">共<span class="key">{{ count }}</span>人&nbsp;&nbsp;&nbsp;</div>
+                        </div>
+                            {% for teacher in all_teachers.object_list %}
+                                <dl class="des">
+                                    <dt>
+                                        <a href="{% url 'organizations:teacher_detail' teacher.id %}">
+                                            <div class="picpic">
+                                                <img width="100" height="100" class="scrollLoading" src="{{ MEDIA_URL }}{{ teacher.teacher_image }}"/>
+                                            </div>
+                                        </a>
+                                        <div class="btn">
+                                            <div class="fr btn2 bdsharebuttonbox"
+                                                 data-text="授课教师-奥巴马-慕学在线"
+                                                 data-desc="我在#慕课网#发现了教师“奥巴马”，对学习中的小伙伴很有帮助，一起来看看吧。"
+                                                 data-comment="奥巴马金牌讲师，从业年限：5年"
+                                                 >
+                                                <span class="fl">分享</span>
+                                                <a href="#" class="bds_more" data-cmd="more"></a>
+                                            </div>
+                                        </div>
+                                    </dt>
+                                    <dd>
+                                        <a href="{% url 'organizations:teacher_detail' teacher.id %}">
+                                            <h1>{{ teacher.teacher_name }}<span class="key picbig">金牌讲师</span></h1>
+                                        </a>
+                                        <ul class="cont">
+                                            <li>工作年限：<span>{{ teacher.work_year }}</span></li>
+                                            <li>工作职位：<span>{{ teacher.company_position }}</span></li>
+                                            <li>就职公司：<span>{{ teacher.inauguration_company }}</span></li>
+                                            <li>教学特点：<span>{{ teacher.description }}</span></li>
+                                            <!--通过 teacher.teacher.count 从course 表中查询该教师的课程数量-->
+                                            <!-- Course 模型的外键 Teacher 设置的 to_field 是 teacher-->
+                                            <li>课程数量：<span>{{ teacher.get_course_number_teacher }}</span></li>
+                                        </ul>
+                                    </dd>
+                                    <a class="buy buyservice" href="{% url 'organizations:teacher_detail' teacher.id %}"><br/>查看<br/>详情</a>
+                                </dl>
+                            {% endfor %}
+                    </div>
+                    <!-- 分页功能 -->
+                    <div class="pageturn">
+                        <ul class="pagelist">
+                            {% if all_teachers.has_previous %}
+                                <li class="long">
+                                    <a href="?{{ all_teachers.previous_page_number.querystring }}">上一页</a>
+                                </li>
+                                {# 如果没有前一页，则不显示上一页字样#}
+                            {% endif %}
+                            {% for page in all_teachers.pages %}
+                                {% if page %}
+                                    {% ifequal page all_teachers.number %}
+                                        <li class="active">{{ page }}</li>
+                                    {% else %}
+                                        <li><a href="?{{ page.querystring }}" class="page">{{ page }}</a></li>
+                                    {% endifequal %}
+                                {% else %}
+                                {# 如果页面没有分页，则不显示任何内容#}
+                                    <li class="none"><a href="" class="page">...</a></li>
+                                {% endif %}
+                            {% endfor %}
+                            {% if all_teachers.has_next %}
+                                <li class="long"><a href="?{{ all_teachers.next_page_number.querystring }}">下一页</a></li>
+                                {# 如果没有下一页，则不显示下一页字样#}
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="right layout">
+                    <div class="head">讲师排行榜</div>
+
+                    {% for hot_teacher in hot_teachers %}
+                        <dl class="des">
+                            <span class="num fl">1</span>
+                            <a href="{% url 'organizations:teacher_detail' hot_teacher.id %}">
+                                <dt>
+                                    <img width="50" height="50" class="scrollLoading"  src="{{ MEDIA_URL }}{{ hot_teacher.teacher_image }}"/>
+                                </dt>
+                            </a>
+                            <dd>
+                                <a href="{% url 'organizations:teacher_detail' hot_teacher.id %}">
+                                    <h1>{{ hot_teacher.teacher_name }}</h1>
+                                </a>
+                                <p>工作年限：<span>{{ hot_teacher.work_year }}</span></p>
+                            </dd>
+                        </dl>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </section>
+    {% endblock %}
+
+
+
+</body>
+</html>

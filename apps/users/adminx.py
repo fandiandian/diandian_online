@@ -5,7 +5,7 @@ __date__ = '2019/2/20 1:06'
 import xadmin
 from xadmin import views
 
-from .models import EmailVerifyRecord, ViewPage
+from .models import EmailVerifyRecord, ViewPage, UserProfiles
 
 
 class BaseSetting:

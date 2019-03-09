@@ -14,10 +14,14 @@ from django.views.generic.base import View
 # 导入 django 自带的密码加密函数
 from django.contrib.auth.hashers import make_password
 
-from users.models import UserProfiles, EmailVerifyRecord
+
+from users.models import UserProfiles, EmailVerifyRecord, ViewPage
 from .forms import LoginForm, RegisterForm, ForgetPasswordForm, ResetPasswordForm
 # 导入自定义的邮件发送模块，实现邮件的发送
 from utils.email_send import send_email_verify_record
+from courses.models import Course
+from organizations.models import CourseOrganization
+from operations.models import UserMessage
 
 
 # 自定义登录验证方式，实现用户名，邮箱，手机均可登录
@@ -37,6 +41,8 @@ class CustomBackend(ModelBackend):
 # 使用类来实现用户登录功能
 class LoginView(View):
     def get(self, request):
+        # 记住来源的url，如果没有则设置为首页('/')
+        request.session['login_from'] = request.META.get('HTTP_REFERER', '/')
         return render(request, 'users/login.html', {})
 
     def post(self, request):
@@ -55,8 +61,11 @@ class LoginView(View):
                 if user.is_active:
                     # 这里「login函数」会对「request请求作出一些更改」
                     login(request, user)
-                    # 重定向到登录后的主页
-                    return HttpResponseRedirect(reverse('index'))
+                    # 重定向到登录之前的页面，如果没有，则返回主页
+                    if reverse('users:login') in request.session['login_from']:
+                        return HttpResponseRedirect(reverse('index'))
+                    else:
+                        return HttpResponseRedirect(request.session['login_from'])
                 else:
                     return render(request, 'users/login.html', {'msg': u'用户未激活，请前往注册邮箱点击激活链接完成激活'})
             else:
@@ -94,13 +103,16 @@ class LoginView(View):
 # 实现用户的登出，并重定向到主页
 def user_logout(request):
     logout(request)
-    return HttpResponseRedirect(reverse('index'))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
+# 用户注册功能
 class RegisterView(View):
     def get(self, request):
         # 这里不需要填入参数：request.POST,只是用于生成验证码的图片
         register_form = RegisterForm()
+        # 记住来源的url，如果没有则设置为首页('/')
+        request.session['login_from'] = request.META.get('HTTP_REFERER', '/')
         return render(request, 'users/register.html', {'register_form': register_form})
 
     def post(self, request):
@@ -115,12 +127,21 @@ class RegisterView(View):
             if UserProfiles.objects.filter(email=user_email):
                 return render(request, 'users/register.html',
                               {'msg_email_error': u'邮箱已被注册，请更换邮箱', 'register_form': register_form})
+
+            # 通过格式验证后，记录用户的数据到数据库中
             user_profile = UserProfiles()
             user_profile.username = user_name
             user_profile.email = user_email
             user_profile.is_active = False
             user_profile.password = make_password(password)
             user_profile.save()
+
+            # 用户注册消息
+            register_message = UserMessage()
+            register_message.user = user_profile.id
+            register_message.message = u'欢迎你注册称为点点在线网的用户'
+            register_message.save()
+
             # 发送邮件验证码，获取发送状态，发送失败为 False
             send_status = send_email_verify_record(user_name, user_email, 'register')
             # 验证是否发送成功，如果送失败，重发三次，如果还是失败，删除用户数据，提示用户重新注册
@@ -166,8 +187,10 @@ class ForgetPassWordCode(View):
 
             reset_password_form = ResetPasswordForm()
 
-            return render(request, 'users/forgetpwd.html',{'reset_password_form': reset_password_form,
-                                                           'msg_type': True, 'user_name': user_name})
+            return render(request, 'users/forgetpwd.html',{
+                'reset_password_form': reset_password_form,
+                'msg_type': True, 'user_name': user_name
+            })
 
         # 验证链接错误或已失效，重新发起验证
         else:
@@ -221,6 +244,7 @@ class ForgetPassword(View):
                       {'forget_password_form': forget_password_form, 'msg_type': False})
 
 
+# 邮件验证过后重置密码页面
 class ResetPassword(View):
     def post(self, request):
         reset_password_form = ResetPasswordForm(request.POST)
@@ -232,8 +256,63 @@ class ResetPassword(View):
                           'reset_password_form': reset_password_form,
                           'msg_equal_error': u'两次输入的密码一致，请重新输入'})
 
-        user = UserProfiles.objects.filter(username=user_name)[0]
+        user = UserProfiles.objects.get(username=user_name)
         user.password = make_password(password)
         user.save()
         # 完成重置，跳转登录页面
         return render(request, 'users/login.html', {})
+
+
+# 首页
+class Index(View):
+    def get(self, request):
+        all_courses = Course.objects.all()
+
+        # 获取收藏人数最多的六门课程
+        hot_courses = all_courses.order_by('-collect_number')[:6]
+
+        all_orgs = CourseOrganization.objects.all()
+        # 获取收藏人数最多的 15 家机构
+        hot_orgs = all_orgs.order_by('-collect_number')[:15]
+
+        # 获取首页的轮播图
+        view_pages = ViewPage.objects.all().order_by('-add_time')[:5]
+
+        # 获取课程轮播位的课程
+        banner_courses = all_courses.filter(is_banner='True').order_by('click_number')[:5]
+
+        return render(request, 'index.html', {
+            'banner_courses': banner_courses,
+            'hot_courses': hot_courses,
+            'hot_orgs': hot_orgs,
+            'view_pages': view_pages,
+
+            # 选中项变色
+            'focus': 'index',
+        })
+
+
+# 全局 404 错误页面
+def handler_404_error(request):
+    from django.shortcuts import render_to_response
+    response = render_to_response('404.html', {})
+    response.status_code = 404
+    return response
+
+
+# 全局 500 错误页面
+def handler_500_error(request):
+    from django.shortcuts import render_to_response
+    response = render_to_response('500.html', {})
+    response.status_code = 500
+    return response
+
+
+# 全局 403 错误页面
+def handler_403_error(request):
+    from django.shortcuts import render_to_response
+    response = render_to_response('403.html', {})
+    response.status_code = 403
+    return response
+
+

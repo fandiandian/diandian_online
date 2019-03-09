@@ -11,6 +11,10 @@
     <link rel="stylesheet" type="text/css" href="{% static 'users/css/register/reset.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'users/css/register/login.css' %}">
 
+    !-- 网页的 favicon.ico 文件,若不申明，浏览器中 F12 会发现 favicon.ico 加载错误-->
+    <!-- 错误详情 "GET /favicon.ico HTTP/1.1" 404 Not Found: /favicon.ico -->
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+
 </head>
 <body>
 <div class="loginbox dialogbox">

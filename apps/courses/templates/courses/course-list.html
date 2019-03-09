@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+{% extends 'base.html' %}
+{% load static %}
+
+<head>
+
+    {% block custom_head_js %}
+        <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/jquery-migrate-1.2.1.min.js' %}"></script>
+    {% endblock %}
+
+    {% block html_title %}
+        <title>
+            {% if open_type == 'open' %}
+                公开课列表 - 点点在线网
+            {% elif open_type == 'specialized' %}
+                专业课列表 - 点点在线网
+            {% endif %}
+        </title>
+    {% endblock %}
+
+</head>
+<body>
+
+
+    <!-- 每个网页的面包屑导航，需自定义（按需体现） -->
+    {% block custom_breadcrumbs %}
+        <section>
+            <div class="wp">
+                <ul  class="crumbs">
+                    <li><a href="{% url 'index' %}">首页</a>></li>
+                    {% if open_type == 'open' %}
+                        <li>公开课</li>
+                    {% elif open_type == 'specialized' %}
+                        <li>专业课</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </section>
+    {% endblock %}
+
+
+    <!-- 自定义页面主体 -->
+    {% block custom_body %}
+        <section>
+	        <div class="wp">
+		        <div class="list" style="margin-top:0;">
+			        <div class="left layout">
+				        <div class="head">
+                            <ul class="tab_header">
+
+                                <li class="{% if sort == '' %}active{% endif %}">
+                                    <a href="?sort=">最新</a>
+                                </li>
+                                <li class="{% if sort == 'hot' %}active{% endif %}">
+                                    <a href="?sort=hot">最热门</a>
+                                </li>
+                                <li class="{% if sort == 'students' %}active{% endif %}">
+                                    <a href="?sort=students">参与人数</a>
+                                </li>
+
+                            </ul>
+				        </div>
+                        <div id="inWindow">
+                            <div class="tab_cont " id="content">
+                                <!-- 页面的主题内容 -->
+                                <div class="group_list">
+                                    {% for course in courses.object_list %}
+                                        <div class="box">
+                                            <a href="{% url 'courses:course_detail' course.id %}">
+                                                <img width="280" height="350" class="scrollLoading"
+                                                     data-url="{{ MEDIA_URL }}{{ course.course_image }}"
+                                                     src="#"/>
+                                            </a>
+                                            <div class="des">
+                                                <a href="{% url 'courses:course_detail' course.id %}">
+                                                    <h2>{{ course.course_name }}</h2>
+                                                </a>
+                                                <span class="fl">时长：<i class="key">{{ course.learn_times }}</i></span>
+                                                <span class="fr">学习人数：{{ course.student_number }}&nbsp;&nbsp;</span>
+                                            </div>
+                                            <div class="bottom">
+                                                <a href="{% url 'organizations:organization_detail_homepage' course.course_teacher.organization.id %}">
+                                                    <span class="fl">{{ course.course_teacher.organization }}</span>
+                                                </a>
+                                                <span class="star fr notlogin" data-favid="15">
+                                                    {{ course.collect_number }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <!-- 页面的分页 -->
+                                <div class="pageturn">
+                                    <ul class="pagelist">
+                                        {% if courses.has_previous %}
+                                            <li class="long">
+                                                <a href="?{{ courses.previous_page_number.querystring }}">上一页</a>
+                                            </li>
+                                            {# 如果没有前一页，则不显示上一页字样#}
+                                        {% endif %}
+                                        {% for page in courses.pages %}
+                                            {% if page %}
+                                                {% ifequal page courses.number %}
+                                                    <li class="active">{{ page }}</li>
+                                                {% else %}
+                                                    <li><a href="?{{ page.querystring }}" class="page">{{ page }}</a></li>
+                                                {% endifequal %}
+                                            {% else %}
+                                            {# 如果页面没有分页，则不显示任何内容#}
+                                                <li class="none"><a href="" class="page">...</a></li>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if courses.has_next %}
+                                            <li class="long"><a href="?{{ courses.next_page_number.querystring }}">下一页</a></li>
+                                            {# 如果没有下一页，则不显示下一页字样#}
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+			        <div class="right layout">
+                        <div class="head">热门课程推荐</div>
+                        <div class="group_recommend">
+                            {% for hot_course in hot_courses %}
+                                <dl>
+                                    <dt>
+                                        <a target="_blank" href="{% url 'courses:course_detail' hot_course.id %}">
+                                            <img width="240" height="160" class="scrollLoading"
+                                                 data-url="{{ MEDIA_URL }}{{ hot_course.course_image }}"
+                                                 src="#"/>
+                                        </a>
+                                    </dt>
+                                    <dd>
+
+                                        <a target="_blank" href="{% url 'courses:course_detail' hot_course.id %}" style="margin: 5px">
+                                            <h1>{{ hot_course.course_name }}</h1>
+                                        </a>
+                                        <span class="fl" style="margin: 15px 0">
+                                            难度：<i class="key">{{ hot_course.course_mark }}</i>
+                                        </span>
+                                        <span class="fr" style="margin: 15px 0">
+                                            热度：<i class="key">{{ hot_course.click_number }}</i>
+                                        </span>
+                                    </dd>
+                                </dl>
+                            {% endfor %}
+                        </div>
+			        </div>
+		        </div>
+	        </div>
+        </section>
+    {% endblock %}
+
+</body>
+</html>

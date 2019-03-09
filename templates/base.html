@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+
+{% load static %}
+
+<head>
+
+    <!-- 页头公共部分 -->
+	<meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" >
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/animate.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+
+    <!-- 网页的 favicon.ico 文件,若不申明，浏览器中 F12 会发现 favicon.ico 加载错误-->
+    <!-- 错误详情 "GET /favicon.ico HTTP/1.1" 404 Not Found: /favicon.ico -->
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+
+    <!-- 自定义「js」文件引用声明,jQuery 需要在最前面进行申明 -->
+    {% block custom_head_js %}
+    {% endblock %}
+
+    <!-- 页面专属「js」文件 需自定义(代码直接写在「html文件」中)-->
+    {% block html_owner_js %}
+    {% endblock %}
+
+
+    <script type='text/javascript' src="{% static 'js/selectUi.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/deco-common.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/laydate/laydate.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/layer/layer.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/queryCity/js/public.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/unslider.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/jquery.scrollLoading.js' %}"></script>
+
+
+    {% comment %}
+    「html」页面使用了「ajax」进行异步数据的请求与响应时，会产生「403」错误。经查询，「django」的官方提供以解决方案
+    将官方给出的代码保存到一个「js文件」中，并在「html」页面中导入
+    记得一定要在加载完「jQuery」之后加载
+    {% endcomment %}
+    <script type="text/javascript" src="{% static 'js/crsf_ajax.js' %}"></script>
+
+
+    <!-- 页面标题每个页面需自定义 -->
+	{% block html_title %}<title>点点在线网 - 首页</title>{% endblock %}
+
+    <!-- 自定义「css」文件引用声明 -->
+    {% block custom_head_css %}
+    {% endblock %}
+
+
+</head>
+
+<body>
+    <!-- 页眉数据，部分公用, 内部包含页眉定制数据 -->
+    <section class="headerwrap">
+        <header>
+            <div  class="header">
+                <!-- 顶部页眉，公用 -->
+                {% if not request.user.is_authenticated %}
+                    <div class="top">
+                        <div class="wp">
+                            <div class="fl">
+                                <p>服务电话：<b>4008888888</b></p>
+                            </div>
+                            <a style="color:white" class="fr registerbtn" href="{% url 'users:register' %}">注册</a>
+                            <a style="color:white" class="fr loginbtn" href="{% url 'users:login' %}">登录</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="top">
+                        <div class="wp">
+                            <div class="fl"><p>服务电话：<b>4008888888</b></p></div>
+                            <!--登录后跳转-->
+                            <div class="personal">
+                                <dl class="user fr">
+                                    <dd>{{ request.user.username }}<img class="down fr" src="{% static 'images/top_down.png' %}"/></dd>
+                                    <dt><img width="20" height="20" src="{{ MEDIA_URL }}{{ request.user.head_portrait }}"/></dt>
+                                </dl>
+                                <div class="userdetail">
+                                    <dl>
+                                        <dt><img width="80" height="80" src="{{ MEDIA_URL }}{{ request.user.head_portrait }}"/></dt>
+                                        <dd>
+                                            <h2>django</h2>
+                                            <p>{{ request.user.username }}</p>
+                                        </dd>
+                                    </dl>
+                                    <div class="btn">
+                                        <a class="personcenter fl" href="{% url 'operations:user_center_information' %}">进入个人中心</a>
+                                        <a class="fr" href="{% url 'users:logout' %}">退出</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{% url 'operations:user_center_messages' %}">
+                                <div class="msg-num"><span id="MsgNum">{{ request.user.get_user_unread_messages }}</span></div>
+                            </a>
+                        </div>
+			        </div>
+                {% endif %}
+                <!-- logo 和 搜索框 -->
+                <div class="middle">
+                    <div class="wp">
+                        <a href="{% url 'index' %}">
+                            <img class="headerlogo fl" src="{% static 'images/logo.jpg' %}"/>
+                        </a>
+                        <div class="searchbox fr">
+                            <div class="selectContainer fl">
+                                <span class="selectOption" id="jsSelectOption" data-value="open_course">
+                                    公开课
+                                </span>
+                                <ul class="selectMenu" id="jsSelectMenu">
+                                    <li data-value="open_course">公开课</li>
+                                    <li data-value="specialized_course">专业课</li>
+                                    <li data-value="org">课程机构</li>
+                                    <li data-value="teacher">授课老师</li>
+                                </ul>
+                            </div>
+                            <input id="search_keywords" class="fl" type="text" value="" placeholder="请输入搜索内容"/>
+                            <img class="search_btn fr" id="jsSearchBtn" src="{% static 'images/search_btn.png' %}"/>
+                        </div>
+                    </div>
+                </div>
+                <!-- 自定义导航栏 -->
+                <nav>
+                    <div class="nav">
+                        <div class="wp">
+                            <ul>
+                                <li class="{% if focus == 'index' %}active{% endif %}">
+                                    <a href="{% url 'index' %}">
+                                        首页
+                                    </a>
+                                </li>
+                                <li class={% if focus == 'open' %}"active"{% endif %}>
+                                    <a href="{% url 'courses:open_courses_list' %}">
+                                        公开课
+                                        <img class="hot" src="{% static 'images/nav_hot.png' %}">
+                                    </a>
+                                </li>
+                                <li class={% if focus == 'specialized' %}"active"{% endif %}>
+                                    <a href="{% url 'courses:specialized_courses_list' %}">
+                                        专业课
+                                    </a>
+                                </li>
+                                <li class={% if focus == 'teacher' %}"active"{% endif %}>
+                                    <a href="{% url 'organizations:teachers_list' %}">
+                                        授课教师
+                                    </a>
+                                </li>
+                                <li class={% if focus == 'organization' %}"active"{% endif %}>
+                                    <a href="{% url 'organizations:organizations_list' %}">
+                                        授课机构
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </header>
+    </section>
+
+    <!-- 每个网页的面包屑导航，需自定义（按需体现） -->
+    {% block custom_breadcrumbs %}
+    {% endblock %}
+
+
+    <!-- 每个网页的页面主体，需自定义 -->
+    {% block custom_body %}
+    {% endblock %}
+
+
+    <!-- 回到顶部（按需体现） -->
+    {% block back_to_top %}
+        <section>
+            <ul class="sidebar">
+                <li class="qq">
+                    <a target="_blank" href="http://wpa.qq.com/msgrd?v=3&uin=2023525077&site=qq&menu=yes"></a>
+                </li>
+                <li class="totop"></li>
+            </ul>
+        </section>
+    {% endblock %}
+
+
+    <!-- 页脚，公用 -->
+    <footer>
+        <div class="footer">
+            <div class="wp">
+                <ul class="cont">
+                    <li class="logo">
+                        <a href="{% url 'index' %}">
+                            <img class="footlogo" src="{% static 'images/footlogo.png' %}"/>
+                        </a>
+                    </li>
+                    <li class="code">
+                        <img src="{% static 'images/code.jpg' %}"/>
+                        <p class="center">扫描关注微信</p>
+                    </li>
+                    <li class="third">
+                        <img class="fl" src="{% static 'images/tell.png' %}"/>
+                        <p class="tell">4008888888</p>
+                        <p class="time">周一至周日 9:00-18:00</p>
+                    </li>
+                </ul>
+            </div>
+            <p class="line"></p>
+            <div class="wp clear">
+                <span class="fl">2019 www.ddianonline.com 点点在线-在线学习交流平台 保留所有权利</span>
+                <span class="fr">copyright 2019 ICP备案证书号：浙ICP备888888号-1</span>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

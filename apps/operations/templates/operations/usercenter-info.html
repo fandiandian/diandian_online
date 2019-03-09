@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+
+{% extends 'base_usercenter.html' %}
+{% load static %}
+
+<head>
+
+    {% block custom_head_js %}
+        <script type="text/javascript" src="{% static 'js/validateDialog.js' %}"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('.jsDeleteFav_course').on('click', function () {
+                    var _this = $(this),
+                        favid = _this.attr('data-favid');
+                    alert(favid)
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "/org/add_fav/",
+                        data: {
+                            fav_type: 1,
+                            fav_id: favid,
+                            csrfmiddlewaretoken: '799Y6iPeEDNSGvrTu3noBrO4MBLv6enY'
+                        },
+                        async: true,
+                        success: function (data) {
+                            Dml.fun.winReload();
+                        }
+                    });
+                });
+            });
+            $(document).ready(function() {
+                $('.jsDeleteFav_teacher').on('click', function () {
+                    var _this = $(this),
+                        favid = _this.attr('data-favid');
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "/org/add_fav/",
+                        data: {
+                            fav_type: 3,
+                            fav_id: favid,
+                            csrfmiddlewaretoken: '799Y6iPeEDNSGvrTu3noBrO4MBLv6enY'
+                        },
+                        async: true,
+                        success: function (data) {
+                            Dml.fun.winReload();
+                        }
+                    });
+                });
+            });
+
+            $(document).ready(function() {
+                $('.jsDeleteFav_org').on('click', function () {
+                    var _this = $(this),
+                        favid = _this.attr('data-favid');
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "/org/add_fav/",
+                        data: {
+                            fav_type: 2,
+                            fav_id: favid,
+                            csrfmiddlewaretoken: '799Y6iPeEDNSGvrTu3noBrO4MBLv6enY'
+                        },
+                        async: true,
+                        success: function (data) {
+                            Dml.fun.winReload();
+                        }
+                    });
+                });
+            });
+        </script>
+        <script type="text/javascript">
+                var shareUrl = '',
+                    shareText = '',
+                    shareDesc = '',
+                    shareComment = '';
+                $(function () {
+                    $(".bdsharebuttonbox a").mouseover(function () {
+                        var type = $(this).attr('data-cmd'),
+                            $parent = $(this).parent('.bdsharebuttonbox'),
+                            fxurl = $parent.attr('data-url'),
+                            fxtext = $parent.attr('data-text'),
+                            fxdesc = $parent.attr('data-desc'),
+                            fxcomment = $parent.attr('data-comment');
+                        switch (type){
+                            case 'tsina':
+                            case 'tqq':
+                            case 'renren':
+                                    shareUrl = fxurl;
+                                    shareText = fxdesc;
+                                    shareDesc = '';
+                                    shareComment = '';
+                                break;
+                            default :
+                                    shareUrl = fxurl;
+                                    shareText = fxtext;
+                                    shareDesc = fxdesc;
+                                    shareComment = fxcomment;
+                                break;
+                        }
+                    });
+                });
+                function SetShareUrl(cmd, config) {
+                    if (shareUrl) {
+                        config.bdUrl = "" + shareUrl;
+                    }
+                    if(shareText){
+                        config.bdText = shareText;
+                    }
+                    if(shareDesc){
+                        config.bdDesc = shareDesc;
+                    }
+                    if(shareComment){
+                        config.bdComment = shareComment;
+                    }
+
+                    return config;
+                }
+                window._bd_share_config = {
+                    "common": {
+                        "onBeforeClick":SetShareUrl,
+                        "bdPic":"",
+                        "bdMini":"2",
+                        "searchPic":"1",
+                        "bdMiniList":false
+                    },
+                    "share": {
+                        "bdSize":"16"
+                    }
+                };
+            with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com../api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    {% endblock %}
+
+</head>
+<body>
+
+    <!-- 每个网页的面包屑导航，需自定义（按需体现） -->
+    {% block custom_breadcrumbs %}
+        <section>
+            <div class="wp">
+                <ul  class="crumbs">
+                    <li><a href="{% url 'index' %}">首页</a>></li>
+                    <li>个人信息</li>
+                </ul>
+            </div>
+        </section>
+    {% endblock %}
+
+
+    <!-- 每个网页的页面主体，需自定义 -->
+    {% block custom_body %}
+        <div class="right">
+            <div class="personal_des ">
+                <div class="head" style="border:1px solid #eaeaea;">
+                    <h1>个人信息</h1>
+                </div>
+                <div class="inforcon">
+                    <div class="left" style="width:242px;">
+                        <iframe id='frameFile' name='frameFile' style='display: none;'></iframe>
+                        <form class="clearfix" id="jsAvatarForm"
+                              enctype="multipart/form-data"
+                              autocomplete="off"
+                              method="post" action="{% url 'operations:reset_head_portrait' %}"
+                              target='frameFile'>
+                            {% csrf_token %}
+                            <label class="changearea" for="avatarUp">
+                                <span id="avatardiv" class="pic">
+                                    <img width="100" height="100" class="js-img-show" id="avatarShow" src="{{ MEDIA_URL }}{{ user.head_portrait }}"/>
+                                </span>
+                                <span class="fl upload-inp-box" style="margin-left:70px;">
+                                    <span class="button btn-green btn-w100" id="jsAvatarBtn">修改头像</span>
+                                    <input type="file" name="head_portrait" id="avatarUp" class="js-img-up"/>
+                                </span>
+                            </label>
+                        </form>
+                        <div style="border-top:1px solid #eaeaea;margin-top:30px;">
+                            <a class="button btn-green btn-w100" id="jsUserResetPwd" style="margin:80px auto;width:100px;">修改密码</a>
+                        </div>
+                    </div>
+                    <form class="perinform" id="jsEditUserForm" autocomplete="off">
+                        {% csrf_token %}
+                        <ul class="right">
+                            <li>昵&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;称：
+                               <input type="text" name="nick_name" id="nick_name" value="{{ user.nick_name }}" maxlength="10">
+                                <i class="error-tips"></i>
+                            </li>
+                            <li>生&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;日：
+                               <input type="text" id="birth_day" name="birthday" value="{% if user.birthday %}{{ user.birthday|date:'Y-m-d' }}{% endif %}" readonly="readonly"/>
+                                <i class="error-tips"></i>
+                            </li>
+                            <li>性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别：
+                                <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <input type="radio"  name="gender" value="male" {% if user.gender == 'male'%}checked="checked"{% endif %}>男
+                                </label>
+                                <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <input type="radio" name="gender" value="female" {% if user.gender == 'female'%}checked="checked"{% endif %}>女
+                                </label>
+                            </li>
+                            <li class="p_infor_city">地&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;址：
+                                <input type="text" name="address" id="address" placeholder="请输入你的地址" value="{{ user.address }}" maxlength="10">
+                                <i class="error-tips"></i>
+                            </li>
+                            <li>手&nbsp;&nbsp;机&nbsp;&nbsp;号：
+                                <input type="text" name="mobile" id="mobile"
+                                       placeholder="请输入你的手机号码"
+                                       value="{% if user.mobile %}{{ user.mobile }}{% endif %}" maxlength="11">
+                            </li>
+                            <li>邮&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;箱：
+                                <input class="borderno" type="text" name="email" readonly="readonly" value="{{ user.email }}"/>
+                                <span class="green changeemai_btn">[修改]</span>
+                            </li>
+                            <li class="button heibtn">
+                                <input type="button" id="jsEditUserBtn" value="保存">
+                            </li>
+                        </ul>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+
+</body>
+</html>

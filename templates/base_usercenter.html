@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+
+{% load static %}
+
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+
+    {% block html_title %}
+        <title>个人信息- 点点在线网</title>
+    {% endblock %}
+
+    <!-- 网页的 favicon.ico 文件,若不申明，浏览器中 F12 会发现 favicon.ico 加载错误-->
+    <!-- 错误详情 "GET /favicon.ico HTTP/1.1" 404 Not Found: /favicon.ico -->
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/animate.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'js/plugins/queryCity/css/cityLayout.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/lq.datetimepick.css' %}"/>
+
+    <script type="text/javascript" src="{% static 'js/jquery.min.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'js/jquery-migrate-1.2.1.min.js' %}" ></script>
+
+    <script type='text/javascript' src="{% static 'js/selectUi.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/deco-common.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/laydate/laydate.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/layer/layer.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/queryCity/js/public.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/unslider.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/jquery.scrollLoading.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/deco-user.js' %}"></script>
+
+    {% comment %}
+    「html」页面使用了「ajax」进行异步数据的请求与响应时，会产生「403」错误。经查询，「django」的官方提供以解决方案
+    将官方给出的代码保存到一个「js文件」中，并在「html」页面中导入
+    记得一定要在加载完「jQuery」之后加载
+    {% endcomment %}
+    <script type="text/javascript" src="{% static 'js/crsf_ajax.js' %}"></script>
+
+
+    <!-- 自定义「js」文件引用声明,jQuery 需要在最前面进行申明 -->
+    {% block custom_head_js %}
+    {% endblock %}
+
+    <script type='text/javascript' src="{% static 'js/plugins/jquery.upload.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'js/validate.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'js/deco-user.js' %}"></script>
+
+</head>
+<body>
+
+    <section class="headerwrap headerwrap2">
+        <header>
+            <div class="header2 header">
+                {% if not request.user.is_authenticated %}
+                    <div class="top">
+                        <div class="wp">
+                            <div class="fl">
+                                <p>服务电话：<b>4008888888</b></p>
+                            </div>
+                            <a style="color:white" class="fr registerbtn" href="{% url 'users:register' %}">注册</a>
+                            <a style="color:white" class="fr loginbtn" href="{% url 'users:login' %}">登录</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="top">
+                        <div class="wp">
+                            <div class="fl"><p>服务电话：<b>4008888888</b></p></div>
+                            <!--登录后跳转-->
+                            <div class="personal">
+                                <dl class="user fr">
+                                    <dd>{{ request.user.username }}<img class="down fr" src="{% static 'images/top_down.png' %}"/></dd>
+                                    <dt><img width="20" height="20" src="{{ MEDIA_URL }}{{ request.user.head_portrait }}"/></dt>
+                                </dl>
+                                <div class="userdetail">
+                                    <dl>
+                                        <dt><img width="80" height="80" src="{{ MEDIA_URL }}{{ request.user.head_portrait }}"/></dt>
+                                        <dd>
+                                            <h2>django</h2>
+                                            <p>{{ request.user.username }}</p>
+                                        </dd>
+                                    </dl>
+                                    <div class="btn">
+                                        <a class="personcenter fl" href="{% url 'operations:user_center_information' %}">进入个人中心</a>
+                                        <a class="fr" href="{% url 'users:logout' %}">退出</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{% url 'operations:user_center_messages' %}">
+                                <div class="msg-num"><span id="MsgNum">{{ request.user.get_user_unread_messages }}</span></div>
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="middle">
+                    <div class="wp">
+                        <a href="{% url 'index' %}"><img class="fl" src="{% static 'images/logo2.png' %}"/></a>
+                        <h1>我的点点网</h1>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </section>
+
+
+    <!-- 每个网页的面包屑导航，需自定义（按需体现） -->
+    {% block custom_breadcrumbs %}
+    {% endblock %}
+
+    <section>
+        <div class="wp list personal_list">
+
+            <div class="left">
+                <ul>
+                    <li class="{% if focus == 'user_info' %}active2{% endif %}">
+                        <a href="{% url 'operations:user_center_information' %}">
+                            个人资料
+                        </a>
+                    </li>
+                    <li class="{% if focus == 'user_mycourse' %}active2{% endif %}">
+                        <a href="{% url 'operations:user_center_my_courses' %}">
+                            我的课程
+                        </a>
+                    </li>
+                    <li class="{% if focus == 'user_fav' %}active2{% endif %}">
+                        <a href="{% url 'operations:user_center_fav_organizations' %}">
+                            我的收藏
+                        </a>
+                    </li>
+                    <li class="{% if focus == 'user_message' %}active2{% endif %}">
+                        <a href="{% url 'operations:user_center_messages' %}" style="position: relative;">
+                            我的消息
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 每个网页的页面主体，需自定义 -->
+            {% block custom_body %}
+            {% endblock %}
+
+        </div>
+    </section>
+
+    <div class="dialog" id="jsDialog">
+            <div class="successbox dialogbox" id="jsSuccessTips">
+                <h1>成功提交</h1>
+                <div class="close jsCloseDialog"><img src="{% static 'images/dig_close.png' %}"/></div>
+                <div class="cont">
+                    <h2>您的需求提交成功！</h2>
+                    <p></p>
+                </div>
+            </div>
+            <!--提示弹出框-->
+            <div class="bidtips dialogbox promptbox" id="jsComfirmDialig">
+                <h1>确认提交</h1>
+                <div class="close jsCloseDialog"><img src="{% static 'images/dig_close.png' %}"/></div>
+                <div class="cont">
+                    <h2>您确认提交吗？</h2>
+                    <dd class="autoTxtCount">
+                        <div class="button">
+                            <input type="button" class="fl half-btn" value="确定" id="jsComfirmBtn"/>
+                            <span class="fr half-btn jsCloseDialog">取消</span>
+                        </div>
+                    </dd>
+                </div>
+            </div>
+            <div class="resetpwdbox dialogbox" id="jsResetDialog">
+                <h1>修改密码</h1>
+                <div class="close jsCloseDialog"><img src="{% static 'images/dig_close.png' %}"/></div>
+                <div class="cont">
+                    <form id="jsResetPwdForm" autocomplete="off">
+                        {% csrf_token %}
+                        <div class="box">
+                            <span class="word2" >新&nbsp;&nbsp;密&nbsp;&nbsp;码</span>
+                            <input type="password" id="pwd" name="password1" placeholder="6-16位非中文字符"/>
+                        </div>
+                        <div class="box">
+                            <span class="word2" >确定密码</span>
+                            <input type="password" id="repwd" name="password2" placeholder="6-16位非中文字符"/>
+                        </div>
+                        <div class="error btns" id="jsResetPwdTips"></div>
+                        <div class="button">
+                            <input id="jsResetPwdBtn" type="button" value="提交" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="dialogbox changeemai1 changephone" id="jsChangeEmailDialog">
+                <h1>修改邮箱</h1>
+                <div class="close jsCloseDialog"><img src="{% static 'images/dig_close.png' %}"/></div>
+                <p>请输入新的邮箱地址</p>
+                <form id="jsChangeEmailForm" autocomplete="off">
+                    {% csrf_token %}
+                    <div class="box">
+                        <input class="fl change_email" name="email" id="jsChangeEmail" type="text" placeholder="输入重新绑定的邮箱地址">
+                    </div>
+                    <div class="box">
+                        <input class="fl email_code" type="text" id="jsChangeEmailCode" name="code" placeholder="输入邮箱验证码">
+                        <input class="getcode getting" type="button" id="jsChangeEmailCodeBtn" value="获取验证码">
+                    </div>
+                    <div class="error btns change_email_tips" id="jsChangeEmailTips" >请输入...</div>
+                    <div class="button">
+                        <input class="changeemai_btn" id="jsChangeEmailBtn" type="button" value="完成"/>
+                    </div>
+                </form>
+            </div>
+
+            <div  class="noactivebox dialogbox" id="jsUnactiveForm" >
+                <h1>邮件验证提示</h1>
+                <div class="close jsCloseDialog"><img src="{% static 'images/dig_close.png' %}"/></div>
+                <div class="center">
+                    <img src="{% static 'images/send.png' %}"/>
+                    <p>我们已经向您的邮箱<span class="green" id="jsEmailToActive">12@13.com</span>发送了邮件，<br/>为保证您的账号安全，请及时验证邮箱</p>
+                    <p class="a"><a class="btn" id="jsGoToEmail" target="_blank" href="http://mail.qq.com">去邮箱验证</a></p>
+                    <p class="zy_success upmove"></p>
+                    <p style="display: none;" class="sendE2">没收到，您可以查看您的垃圾邮件和被过滤邮件，也可以再次发送验证邮件（<span class="c5c">60s</span>）</p>
+                    <p class="sendE">没收到，您可以查看您的垃圾邮件和被过滤邮件，<br/>也可以<span class="c5c green" id="jsSenEmailAgin" style="cursor: pointer;">再次发送验证邮件</span></p>
+                </div>
+            </div>
+            <div class="resetpassbox dialogbox" id="jsSetNewPwd">
+                <h1>重新设置密码</h1>
+                <div class="close jsCloseDialog"><img src="{% static 'images/dig_close.png' %}"/></div>
+                <p class="green">请输入新密码</p>
+                <form id="jsSetNewPwdForm">
+                    {% csrf_token %}
+                    <div class="box">
+                        <span class="word2">密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码</span>
+                        <input type="password" name="password1" id="jsResetPwd" placeholder="请输入新密码"/>
+                    </div>
+                    <div class="box">
+                        <span class="word2">确&nbsp;认&nbsp;密&nbsp;码</span>
+                        <input type="password" name="password2" id="jsResetPwd2" placeholder="请再次输入新密码"/>
+                    </div>
+                    <div class="box">
+                        <span class="word2">验&nbsp;&nbsp;证&nbsp;&nbsp;码</span>
+                        <input type="text" name="code" id="jsResetCode" placeholder="请输入手机验证码"/>
+                    </div>
+                    <div class="error btns" id="jsSetNewPwdTips"></div>
+                    <div class="button">
+                        <input type="hidden" name="mobile" id="jsInpResetMobil" />
+                        <input id="jsSetNewPwdBtn" type="button" value="提交" />
+                    </div>
+                </form>
+            </div>
+            <div class="forgetbox dialogbox">
+                <h1>忘记密码</h1>
+                <div class="close jsCloseDialog"><img src="{% static 'images/dig_close.png' %}"/></div>
+                <div class="cont">
+                    <form id="jsFindPwdForm" autocomplete="off">
+                        {% csrf_token %}
+                        <div class="box">
+                            <span class="word2" >账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号</span>
+                            <input type="text" id="account" name="account" placeholder="手机/邮箱"/>
+                        </div>
+                        <div class="box">
+                            <span class="word3">验证码</span>
+                            <input autocomplete="off" class="form-control-captcha find-password-captcha" id="find-password-captcha_1" name="captcha_f_1" placeholder="请输入验证码" type="text" /> <input class="form-control-captcha find-password-captcha" id="find-password-captcha_0" name="captcha_f_0" placeholder="请输入验证码" type="hidden" value="5f3c00e47fb1be12d2fd15b9a860711597721b3f" /> &nbsp;<img src="/captcha/image/5f3c00e47fb1be12d2fd15b9a860711597721b3f/" alt="captcha" class="captcha" />
+                        </div>
+                        <div class="error btns" id="jsForgetTips"></div><!--忘记密码错误-->
+                        <div class="button">
+                            <input type="hidden" name="sms_type" value="1">
+                            <input id="jsFindPwdBtn" type="button" value="提交" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <div class="bg" id="dialogBg"></div>
+
+    <!-- 回到顶部（按需体现） -->
+    <section>
+        <ul class="sidebar">
+            <li class="qq">
+                <a target="_blank" href="http://wpa.qq.com/msgrd?v=3&uin=2023525077&site=qq&menu=yes"></a>
+            </li>
+            <li class="totop"></li>
+        </ul>
+    </section>
+
+
+</body>
+</html>
