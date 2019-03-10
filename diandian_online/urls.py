@@ -52,7 +52,7 @@ urlpatterns = [
     path('ueditor/',include('DUEditor.urls' )),
 
     # 配置未上线时的错误页面调试的静态文件路径
-    # path('static/<path:path>/', serve, {'document_root': settings.STATIC_ROOTS}),
+    # path('static/<path:path>/', serve, {'document_root': settings.STATIC_ROOT}),
 ]
 
 

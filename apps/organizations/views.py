@@ -195,10 +195,13 @@ class OrganizationCoursePage(View):
             course_teacher__in=[teacher.id for teacher in org_info.teacher_set.all()]
         ).order_by('-collect_number')
 
-        # 增加用户收藏状态的判断
-        collection = UserCollection.objects.filter(user=request.user, collection_id=org_id, collection_type=2)
-        if collection:
-            is_collected = u'已收藏'
+        if request.user.is_authenticated:
+            # 增加用户收藏状态的判断
+            collection = UserCollection.objects.filter(user=request.user, collection_id=org_id, collection_type=2)
+            if collection:
+                is_collected = u'已收藏'
+            else:
+                is_collected = u'收藏'
         else:
             is_collected = u'收藏'
 
@@ -233,10 +236,13 @@ class OrganizationTeacherPage(View):
         # 机构的id 在教师数据表中获取教师的信息
         teachers = Teacher.objects.filter(organization_id=org_id).order_by('-collect_number')
 
-        # 增加用户收藏状态的判断
-        collection = UserCollection.objects.filter(user=request.user, collection_id=org_id, collection_type=2)
-        if collection:
-            is_collected = u'已收藏'
+        if request.user.is_authenticated:
+            # 增加用户收藏状态的判断
+            collection = UserCollection.objects.filter(user=request.user, collection_id=org_id, collection_type=2)
+            if collection:
+                is_collected = u'已收藏'
+            else:
+                is_collected = u'收藏'
         else:
             is_collected = u'收藏'
 
@@ -268,10 +274,13 @@ class OrganizationDescripthionPage(View):
         # 通过机构的 主键id 从机构数据表中获取机构的相关数据
         org_info = CourseOrganization.objects.filter(id=org_id)[0]
 
-        # 增加用户收藏状态的判断
-        collection = UserCollection.objects.filter(user=request.user, collection_id=org_id, collection_type=2)
-        if collection:
-            is_collected = u'已收藏'
+        if request.user.is_authenticated:
+            # 增加用户收藏状态的判断
+            collection = UserCollection.objects.filter(user=request.user, collection_id=org_id, collection_type=2)
+            if collection:
+                is_collected = u'已收藏'
+            else:
+                is_collected = u'收藏'
         else:
             is_collected = u'收藏'
 

@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'extra_apps'))
 SECRET_KEY = '5ydy$2vx8hk5uh5s6$mqc595&&hfn3j(ol)jn&+pm=kjk)-mz&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -166,7 +166,6 @@ STATIC_URL = '/static/'
 # 配制静态文件路径
 STATICFILES_DIRS =[
     os.path.join(BASE_DIR, 'apps', 'users', 'static'),
-
     os.path.join(BASE_DIR, 'static'),
 ]
 
@@ -195,7 +194,7 @@ PAGINATION_SETTINGS = {
 
 
 # 在网站未上线前，调试404等错误页面
-# STATIC_ROOTS = os.path.join(BASE_DIR, 'static')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 
 # DUEditor 第三方的富文本编辑器的 settings 设定
